@@ -4,9 +4,10 @@ var Combine = require('ordered-read-streams');
 var unique = require('unique-stream');
 
 var glob = require('glob');
-var resolveGlob = require('to-absolute-glob');
+var toAbsoluteGlob = require('to-absolute-glob');
 var globParent = require('glob-parent');
 var path = require('path');
+var slash = require('slash');
 var extend = require('extend');
 
 var gs = {
@@ -27,7 +28,7 @@ var gs = {
     var globber = new glob.Glob(ourGlob, ourOpt);
 
     // Extract base path from glob
-    var basePath = opt.base || globParent(ourGlob) + path.sep;
+    var basePath = opt.base || path.normalize(globParent(ourGlob)) + path.sep;
 
     // Create stream and map events from globber to it
     var stream = through2.obj(ourOpt);
@@ -137,6 +138,9 @@ var gs = {
   },
 };
 
+function resolveGlob(pattern, opt) {
+  return slash(toAbsoluteGlob(pattern, opt));
+}
 
 function isNegative(pattern) {
   if (typeof pattern === 'string') {
